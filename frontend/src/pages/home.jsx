@@ -1,8 +1,11 @@
-/* eslint-disable react/prop-types */
-export function Home({ user }) {
+import { useUserContext } from "../useUserContext";
+
+export function Home() {
+    const { user, logout } = useUserContext();
     return (
         <div>
-            <h1>Welcome, {user}</h1>
+            <h1>Welcome, {user?.name}</h1>
+            <button onClick={() => logout()}>Log out</button>
         </div>
     );
 }

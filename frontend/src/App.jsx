@@ -3,43 +3,22 @@ import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import "./App.css";
 import { Home } from "./pages/home";
 import { Login } from "./pages/login";
-import { useEffect, useState } from "react";
+import { useUserContext } from "./useUserContext";
+import { ProtectedRoute } from "./components/protecttedRoute";
 
 function App() {
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        async function fecthUser() {
-            const res = await fetch("http://127.0.0.1:3000/user", {
-                credentials: "include",
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true,
-                },
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                console.log("authnetication failed");
-            } else {
-                setUser(data);
-            }
-        }
-        fecthUser();
-    }, []);
-
+    const { user } = useUserContext();
+    console.log(user);
     return (
         <BrowserRouter>
             <Routes>
-                <Route
-                    path="/"
-                    element={user ? <Home /> : <Navigate to={"/login"} />}
-                />
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<Home />} />
+                </Route>
+
                 <Route
                     path="/login"
-                    element={user ? <Navigate to={"/"} /> : <Login />}
+                    element={user !== null ? <Navigate to={"/"} /> : <Login />}
                 />
             </Routes>
         </BrowserRouter>

@@ -14,9 +14,9 @@ export function passportInit() {
                 callbackURL: "http://localhost:3000/auth/google/callback",
             },
             function (accessToken, refreshToken, profile, cb) {
-                console.log(profile);
                 cb(null, {
                     name: profile.displayName,
+                    email: profile.emails[0].value,
                 });
             }
         )
@@ -26,6 +26,7 @@ export function passportInit() {
         process.nextTick(function () {
             return cb(null, {
                 name: user.name,
+                email: user.email,
             });
         });
     });

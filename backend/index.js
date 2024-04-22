@@ -6,18 +6,18 @@ import { passportInit } from "./passport_p.js";
 
 const app = express();
 
-passportInit();
-
 app.use(
     session({
         secret: "wfwefwefwef",
         resave: false,
         saveUninitialized: false,
+        cookie: { maxAge: 60000, httpOnly: true },
     })
 );
 
+passportInit();
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.authenticate("session"));
 
 app.use(
     cors({
@@ -31,13 +31,17 @@ app.get("/user", (req, res) => {
     if (!req.user) {
         res.status(401).json({ message: "not authenticated" });
     } else {
+        console.log(req.user);
         res.status(200).json({ ...req.user });
     }
 });
 
 app.get(
     "/auth/google",
-    passport.authenticate("google", { scope: ["profile"] })
+    passport.authenticate("google", {
+        scope: ["profile", "email"],
+        prompt: "select_account",
+    })
 );
 
 app.get("/login/failed", (req, res) => {
@@ -54,16 +58,8 @@ app.get(
 
 app.get("/logout", (req, res) => {
     if (!req.user) {
-        res.status(401).json({ message: "already logged out" });
-    } else {
-        req.logout((err) => {
-            if (err) {
-                res.status(401).json({ message: "cannot loir" });
-            } else {
-                res.status(200).json({ message: "logged out succesfully" });
-            }
-        });
-    }
+        return res.status(401).json({ message: "already logged out" });
+    } else res.status(200).json({ message: "logged out" });
 });
 
 app.listen(3000, () => {
